@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.account.move.transfer</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='invoicing_settings']" position="inside">
+                <div class="col-12 col-lg-6 o_setting_box" id="pos_payment_transfer_settings">
+                    <div class="o_setting_left_pane"/>
+                    <div class="o_setting_right_pane">
+                        <span class="o_form_label">POS Payment Transfer</span>
+                        <div class="text-muted">
+                            Configure default accounts for POS payment transfers
+                        </div>
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="pos_payment_method_id" class="col-lg-4 o_light_label"/>
+                                <field name="pos_payment_method_id"/>
+                            </div>
+                            <div class="row">
+                                <label for="transfer_account_source_id" class="col-lg-4 o_light_label"/>
+                                <field name="transfer_account_source_id"/>
+                            </div>
+                            <div class="row">
+                                <label for="transfer_account_destination_id" class="col-lg-4 o_light_label"/>
+                                <field name="transfer_account_destination_id"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
