@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Ingenioso SAS - License AGPL-3.0 or later -->
+<odoo>
+    <report
+        id="action_report_tax_certificate"
+        model="account.tax.certificate.wizard"
+        string="Certificado de Impuesto"
+        report_type="qweb-pdf"
+        name="account_tax_certificate.report_tax_certificate"
+        file="account_tax_certificate.report_tax_certificate"
+        print_report_name="'Certificado_%s_%s' % (object.tax_id.name, object.partner_id.name)"
+    />
+</odoo>

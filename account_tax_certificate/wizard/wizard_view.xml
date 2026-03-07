@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Ingenioso SAS - License AGPL-3.0 or later -->
+<odoo>
+    <!-- Vista form del wizard -->
+    <record id="view_account_tax_certificate_wizard_form" model="ir.ui.view">
+        <field name="name">account.tax.certificate.wizard.form</field>
+        <field name="model">account.tax.certificate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Certificado de Impuesto">
+                <group>
+                    <group>
+                        <field name="partner_id" />
+                        <field name="tax_id" />
+                    </group>
+                    <group>
+                        <field name="date_from" />
+                        <field name="date_to" />
+                        <field
+                            name="company_id"
+                            groups="base.group_multi_company"
+                        />
+                    </group>
+                </group>
+                <footer>
+                    <button
+                        name="action_print_certificate"
+                        string="Generar Certificado"
+                        type="object"
+                        class="oe_highlight"
+                    />
+                    <button string="Cancelar" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el wizard -->
+    <record id="action_account_tax_certificate_wizard" model="ir.actions.act_window">
+        <field name="name">Certificado de Impuesto</field>
+        <field name="res_model">account.tax.certificate.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Ítem de menú bajo Contabilidad > Informes -->
+    <menuitem
+        id="menu_account_tax_certificate"
+        name="Certificado de Impuesto"
+        parent="account.account_reports_management_menu"
+        action="action_account_tax_certificate_wizard"
+        sequence="99"
+    />
+</odoo>

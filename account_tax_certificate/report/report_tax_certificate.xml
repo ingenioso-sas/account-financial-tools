@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Ingenioso SAS - License AGPL-3.0 or later -->
+<odoo>
+    <template id="report_tax_certificate">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Encabezado de la compañía -->
+                        <div class="text-center" style="margin-bottom:20px;">
+                            <h2 style="text-transform:uppercase; font-weight:bold; margin:0;">
+                                <t t-esc="o.company_id.name" />
+                            </h2>
+                            <p style="margin:2px 0;">
+                                <strong>Nit.</strong>
+                                <t t-esc="o.company_id.vat or ''" />
+                            </p>
+                            <t t-if="o.company_id.street">
+                                <p style="margin:2px 0;">
+                                    <t t-esc="o.company_id.street" />
+                                </p>
+                            </t>
+                            <p style="margin:2px 0;">
+                                <t t-esc="o.company_id.city or ''" />
+                            </p>
+                        </div>
+
+                        <!-- Título del certificado -->
+                        <div class="text-center" style="margin-bottom:20px;">
+                            <h3 style="text-transform:uppercase; font-weight:bold; text-decoration:underline; margin:0;">
+                                CERTIFICADO DE
+                                <t t-esc="o.tax_id.name" />
+                            </h3>
+                        </div>
+
+                        <!-- Texto introductorio -->
+                        <p>
+                            Para efectos fiscales pertinentes, certificamos que durante el período comprendido entre el
+                            <strong>
+                                <t t-esc="o.date_from.strftime('%d/%m/%Y')" />
+                            </strong>
+                            y el
+                            <strong>
+                                <t t-esc="o.date_to.strftime('%d/%m/%Y')" />
+                            </strong>
+                            practicamos retención de
+                            <strong>
+                                <t t-esc="o.tax_id.name" />
+                            </strong>
+                            a:
+                        </p>
+
+                        <!-- Datos del tercero -->
+                        <p style="margin-bottom:4px;">
+                            <strong style="text-transform:uppercase;">
+                                <t t-esc="o.partner_id.name" />
+                            </strong>
+                            <t t-if="o.partner_id.vat">
+                                con NIT:
+                                <strong>
+                                    <t t-esc="o.partner_id.vat" />
+                                </strong>
+                            </t>
+                        </p>
+                        <p>por los siguientes conceptos y valores:</p>
+
+                        <!-- Tabla de conceptos -->
+                        <table class="table table-sm table-bordered" style="width:100%; margin-bottom:16px;">
+                            <thead>
+                                <tr style="background-color:#e8e8e8;">
+                                    <th style="text-transform:uppercase;">CONCEPTO</th>
+                                    <th class="text-right" style="text-transform:uppercase; text-align:right;">VALOR BASE</th>
+                                    <th class="text-right" style="text-transform:uppercase; text-align:right;">VALOR RETENIDO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data_lines" t-as="line">
+                                    <tr>
+                                        <td>
+                                            <t t-esc="line['concept']" />
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <t t-esc="'{:,.2f}'.format(line['base_amount'])" />
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <t t-esc="'{:,.2f}'.format(line['tax_amount'])" />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <strong>TOTAL RETENIDO</strong>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <strong>
+                                            <t t-esc="'{:,.2f}'.format(total_tax)" />
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Pie del certificado -->
+                        <p>
+                            Este certificado se expide a los
+                            <strong>
+                                <t t-esc="o.date_to.strftime('%d')" />
+                            </strong>
+                            días del mes de
+                            <strong>
+                                <t t-esc="o.date_to.strftime('%B').upper()" />
+                            </strong>
+                            de
+                            <strong>
+                                <t t-esc="o.date_to.strftime('%Y')" />
+                            </strong>
+                            en
+                            <strong>
+                                <t t-esc="o.company_id.city or ''" />
+                            </strong>
+                            , D.C., ciudad donde fue consignada la retención efectuada.
+                        </p>
+
+                        <p style="margin-top:20px; font-size:9pt; color:#666;">
+                            Esta certificación se expide sin firma autógrafa de acuerdo con lo establecido
+                            en el artículo 10 del decreto 836 del 26 de marzo de 1991.
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
