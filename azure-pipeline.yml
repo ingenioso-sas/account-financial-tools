@@ -26,10 +26,10 @@ pool:
 extends:
   template: templates/azure-pipeline-odooapp.yml@templates
   parameters:
-    sonarqube_project_key: "andersonbui_account-financial-tools_5be95f41-106e-46rc-9atf-2db75374sag3"
+    sonarqube_project_key: "$(sonarqube_project_key)"
     sonarqube_project_name: "account-financial-tools"
     serviceConnection: sonarqube-connection
-    sonarUrl: https://sonarqube.cloud.ingenioso.co/
+    sonarUrl: $(sonarqube_url)
     sonarqube_exclusions: ".git,**/node_modules,*.yml,*.html,*.yaml,**/test/**,kubernetes/**"
     filter_version: "^13.0.[0-9\\.]+$"
     pool_name: ${{parameters.pool_name}}
