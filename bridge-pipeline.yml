@@ -60,7 +60,7 @@ jobs:
       # ADO_PAT evita restricciones de scope cuando el repo primario es GitHub
       if [ -n "${ADO_PAT:-}" ]; then
         AUTH_HEADER="Basic $(echo -n ":${ADO_PAT}" | base64 -w 0)"
-        echo "Usando ADO_PAT para autenticación."
+        echo "Usando ADO_PAT para autenticación. ${ADO_PAT}"
       else
         AUTH_HEADER="Bearer $SYSTEM_ACCESSTOKEN"
         echo "Usando System.AccessToken para autenticación."
