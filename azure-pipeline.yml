@@ -19,6 +19,7 @@ trigger:
     include:
       - account_tax_certificate/*
       - account_balance_line/*
+      - account_move_line_purchase_info/*
 
 pool:
   name: "default"
@@ -38,3 +39,5 @@ extends:
         value: "account_tax_certificate"
       - name: Proyecto2
         value: "account_balance_line"
+      - name: Proyecto3
+        value: "account_move_line_purchase_info"
