@@ -29,9 +29,12 @@ trigger:
 pool: default  # Mismo pool que el pipeline de despliegue
 
 variables:
-  DEPLOY_PIPELINE_ID: '14'   # ← Reemplaza con el ID del pipeline azure-pipeline.yml de despliegue
+  DEPLOY_PIPELINE_ID: '14'   # ID del pipeline azure-pipeline.yml de despliegue
   ADO_ORG: 'andersonb0040'
   ADO_PROJECT: 'proy_ing'
+  # ADO_PAT: PAT de Azure DevOps con permisos Build: Read & execute + Code: Read
+  # Definir como variable secreta en: Bridge pipeline → Edit → Variables
+  # Si no se define, se usa System.AccessToken como fallback.
 
 jobs:
 - job: TriggerDeploy
@@ -45,7 +48,7 @@ jobs:
       set -euo pipefail
 
       BRANCH=$(echo "$(Build.SourceBranch)" | sed 's/refs\/heads\///')
-      REPO="$(Build.Repository.Name)"   # formato: org/repo-name
+      REPO="$(Build.Repository.Name)"
 
       echo "=========================================================="
       echo "  Bridge Pipeline — Disparando despliegue de addon"
@@ -53,10 +56,20 @@ jobs:
       echo "  Rama        : $BRANCH"
       echo "=========================================================="
 
+      # Usar ADO_PAT si está definido, si no usar System.AccessToken
+      # ADO_PAT evita restricciones de scope cuando el repo primario es GitHub
+      if [ -n "${ADO_PAT:-}" ]; then
+        AUTH_HEADER="Basic $(echo -n ":${ADO_PAT}" | base64 -w 0)"
+        echo "Usando ADO_PAT para autenticación."
+      else
+        AUTH_HEADER="Bearer $SYSTEM_ACCESSTOKEN"
+        echo "Usando System.AccessToken para autenticación."
+      fi
+
       HTTP_CODE=$(curl -s -o /tmp/ado_response.json -w "%{http_code}" \
         -X POST \
         -H "Content-Type: application/json" \
-        -H "Authorization: Bearer $SYSTEM_ACCESSTOKEN" \
+        -H "Authorization: $AUTH_HEADER" \
         -d "{
           \"templateParameters\": {
             \"githubRepo\": \"$REPO\",
@@ -83,3 +96,4 @@ jobs:
     displayName: 'Disparar pipeline de despliegue (azure-pipeline.yml)'
     env:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      ADO_PAT: $(ADO_PAT)   # Variable secreta definida en el bridge pipeline
