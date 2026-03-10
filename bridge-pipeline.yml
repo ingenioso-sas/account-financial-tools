@@ -1,0 +1,78 @@
+# ==============================================================================
+# bridge-pipeline.yml
+#
+# PROPÓSITO:
+#   Pipeline puente cuyo repositorio PRIMARIO es el repo de GitHub.
+#   Se dispara automáticamente al hacer push a ramas de versión Odoo (ej: 13.0).
+#   Su única tarea es invocar el pipeline principal de despliegue en ADO,
+#   pasando el repo y la rama como parámetros.
+#
+# UBICACIÓN:
+#   Este archivo debe vivir en la raíz del repositorio de GitHub:
+#   ingenioso-sas/account-financial-tools  =>  bridge-pipeline.yml
+#                                          (o ajusta la ruta al crear el pipeline en ADO)
+#
+# SETUP EN AZURE DEVOPS:
+#   1. Nuevo pipeline → GitHub → seleccionar "ingenioso-sas/account-financial-tools"
+#   2. Seleccionar este archivo YAML
+#   3. Guardar (ADO creará el webhook en GitHub automáticamente)
+#   4. Ir al pipeline de despliegue → Security →
+#      conceder a "[Proyecto] Build Service" el permiso "Queue builds"
+# ==============================================================================
+
+trigger:
+  branches:
+    include:
+    # Solo activa en ramas que sigan el patrón de versión Odoo: 13.0, 14.0, 16.0-dev, etc.
+    - '[0-9]*.[0-9]*'
+
+pool: default  # Mismo pool que el pipeline de despliegue
+
+variables:
+  DEPLOY_PIPELINE_ID: '14'   # ← Reemplaza con el ID del pipeline azure-pipeline.yml de despliegue
+  ADO_ORG: 'andersonb0040'
+  ADO_PROJECT: 'proy_ing'
+
+steps:
+- bash: |
+    set -euo pipefail
+
+    BRANCH=$(echo "$(Build.SourceBranch)" | sed 's/refs\/heads\///')
+    REPO="$(Build.Repository.Name)"   # formato: org/repo-name
+
+    echo "=========================================================="
+    echo "  Bridge Pipeline — Disparando despliegue de addon"
+    echo "  Repositorio : $REPO"
+    echo "  Rama        : $BRANCH"
+    echo "=========================================================="
+
+    HTTP_CODE=$(curl -s -o /tmp/ado_response.json -w "%{http_code}" \
+      -X POST \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $(System.AccessToken)" \
+      -d "{
+        \"templateParameters\": {
+          \"githubRepo\": \"$REPO\",
+          \"githubBranch\": \"$BRANCH\"
+        }
+      }" \
+      "https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_apis/pipelines/$(DEPLOY_PIPELINE_ID)/runs?api-version=7.1")
+
+    echo "HTTP Status  : $HTTP_CODE"
+    cat /tmp/ado_response.json | python3 -m json.tool 2>/dev/null || cat /tmp/ado_response.json
+
+    if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ]; then
+      echo "##[error]Error al disparar el pipeline de despliegue: HTTP $HTTP_CODE"
+      exit 1
+    fi
+
+    RUN_ID=$(python3 -c \
+      "import json; d=json.load(open('/tmp/ado_response.json')); print(d.get('id','?'))")
+    RUN_URL="https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_build/results?buildId=${RUN_ID}"
+
+    echo "✅ Pipeline de despliegue disparado."
+    echo "   Run ID : $RUN_ID"
+    echo "   Ver en : $RUN_URL"
+  displayName: 'Disparar pipeline de despliegue (azure-pipeline.yml)'
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
