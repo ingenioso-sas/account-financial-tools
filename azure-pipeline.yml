@@ -39,5 +39,5 @@ extends:
         value: "account_tax_certificate"
       - name: Proyecto2
         value: "account_balance_line"
-      #- name: Proyecto3
-      #  value: "account_move_line_purchase_info"
+      - name: Proyecto3
+        value: "account_move_line_purchase_info"
