@@ -65,7 +65,7 @@ jobs:
         }" \
         "https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_apis/pipelines/$(DEPLOY_PIPELINE_ID)/runs?api-version=7.1")
 
-      echo "HTTP Status  : $HTTP_CODE"
+      echo "HTTP Status : $HTTP_CODE"
       cat /tmp/ado_response.json | python3 -m json.tool 2>/dev/null || cat /tmp/ado_response.json
 
       if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ]; then
