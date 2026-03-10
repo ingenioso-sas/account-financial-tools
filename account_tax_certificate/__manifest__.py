@@ -5,7 +5,7 @@
     "version": "13.0.1.0.0",
     "category": "Accounting",
     "license": "AGPL-3",
-    "summary": "Genera certificados de retención/impuesto por tercero, impuesto y rango de fechas. 123",
+    "summary": "Genera certificados de retención/impuesto por tercero, impuesto y rango de fechas. 1234",
     "author": "Ingenioso SAS",
     "website": "https://github.com/OCA/account-financial-tools",
     "depends": ["account"],
