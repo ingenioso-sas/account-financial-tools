@@ -56,20 +56,20 @@ jobs:
       echo "  Rama        : $BRANCH"
       echo "=========================================================="
 
-      # Usar ADO_PAT si está definido, si no usar System.AccessToken
-      # ADO_PAT evita restricciones de scope cuando el repo primario es GitHub
+      # Construir el comando curl con el método de auth adecuado
+      # -u ":${PAT}" es la forma correcta para ADO — curl maneja la codificación internamente
       if [ -n "${ADO_PAT:-}" ]; then
-        AUTH_HEADER="Basic $(echo -n ":${ADO_PAT}" | base64 -w 0)"
-        echo "Usando ADO_PAT para autenticación. ${ADO_PAT}"
+        echo "Usando ADO_PAT para autenticación."
+        CURL_AUTH=(-u ":${ADO_PAT}")
       else
-        AUTH_HEADER="Bearer $SYSTEM_ACCESSTOKEN"
         echo "Usando System.AccessToken para autenticación."
+        CURL_AUTH=(-H "Authorization: Bearer $SYSTEM_ACCESSTOKEN")
       fi
 
       HTTP_CODE=$(curl -s -o /tmp/ado_response.json -w "%{http_code}" \
         -X POST \
         -H "Content-Type: application/json" \
-        -H "Authorization: $AUTH_HEADER" \
+        "${CURL_AUTH[@]}" \
         -d "{
           \"templateParameters\": {
             \"githubRepo\": \"$REPO\",
@@ -77,6 +77,7 @@ jobs:
           }
         }" \
         "https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_apis/pipelines/$(DEPLOY_PIPELINE_ID)/runs?api-version=7.1")
+
 
       echo "HTTP Status : $HTTP_CODE"
       cat /tmp/ado_response.json | python3 -m json.tool 2>/dev/null || cat /tmp/ado_response.json
