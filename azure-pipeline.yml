@@ -1,0 +1,43 @@
+parameters:
+  - name: pool_name
+    displayName: agent pool location
+    type: string
+    default: default
+
+resources:
+  repositories:
+    - repository: templates
+      name: "proy_ing/pipeline_templates"
+      type: git
+      ref: refs/heads/feature/devops
+
+trigger:
+  branches:
+    include:
+      - 13.0
+  paths:
+    include:
+      - account_tax_certificate/*
+      - account_balance_line/*
+      - account_move_line_purchase_info/*
+
+pool:
+  name: "default"
+
+extends:
+  template: templates/azure-pipeline-odooapp.yml@templates
+  parameters:
+    sonarqube_project_key: "$(sonarqube_project_key)"
+    sonarqube_project_name: "account-financial-tools"
+    serviceConnection: sonarqube-connection
+    sonarUrl: $(sonarqube_url)
+    sonarqube_exclusions: ".git,**/node_modules,*.yml,*.html,*.yaml,**/test/**,kubernetes/**"
+    filter_version: "^13.0.[0-9\\.]+$"
+    pool_name: ${{parameters.pool_name}}
+    strategy_matrix:
+      - name: Proyecto1
+        value: "account_tax_certificate"
+      - name: Proyecto2
+        value: "account_balance_line"
+      - name: Proyecto3
+        value: "account_move_line_purchase_info"
