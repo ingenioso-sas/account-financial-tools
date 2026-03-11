@@ -129,9 +129,9 @@ Notas técnicas
   sudo locale-gen es_CO.UTF-8
   sudo update-locale
   # Luego en el archivo de configuración de Odoo (odoo.conf) o en la
-  # variable de entorno al arrancar el proceso:
-  LC_TIME=es_CO.UTF-8 python odoo-bin ...
-```
+  # variables de entorno al arrancar el proceso:
+  LC_TIME=es_CO.UTF-8 LANG=es_ES.UTF-8 LANGUAGE=es_ES:es LC_ALL=es_ES.UTF-8 python odoo-bin ...
+``` 
 
 
 Changelog
