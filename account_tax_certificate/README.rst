@@ -159,7 +159,7 @@ Autores
 Colaboradores
 ~~~~~~~~~~~~~
 
-* `Ingenioso SAS <https://www.ingenioso.com.co>`__
+* `Ingenioso SAS <https://www.ingenioso.com.co>`
 
 Mantenedores
 ~~~~~~~~~~~~
