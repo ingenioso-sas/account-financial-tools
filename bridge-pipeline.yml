@@ -29,12 +29,10 @@ trigger:
 pool: default  # Mismo pool que el pipeline de despliegue
 
 variables:
-  DEPLOY_PIPELINE_ID: '14'   # ID del pipeline azure-pipeline.yml de despliegue
-  ADO_ORG: 'andersonb0040'
-  ADO_PROJECT: 'proy_ing'
-  # ADO_PAT: PAT de Azure DevOps con permisos Build: Read & execute + Code: Read
-  # Definir como variable secreta en: Bridge pipeline → Edit → Variables
-  # Si no se define, se usa System.AccessToken como fallback.
+- group: GeneralProd
+  # Este grupo debe contener las variables:
+  # - azure_pat_bridge_pipeline: PAT de Azure DevOps (recomendado tipo secret)
+  # - DEPLOY_ADDONS_PIPELINE_ID: ID del pipeline azure-pipeline.yml de despliegue
 
 jobs:
 - job: TriggerDeploy
@@ -58,9 +56,9 @@ jobs:
 
       # Construir el comando curl con el método de auth adecuado
       # -u ":${PAT}" es la forma correcta para ADO — curl maneja la codificación internamente
-      if [ -n "${ADO_PAT:-}" ]; then
-        echo "Usando ADO_PAT para autenticación."
-        CURL_AUTH=(-u ":${ADO_PAT}")
+      if [ -n "${azure_pat_bridge_pipeline:-}" ]; then
+        echo "Usando azure_pat_bridge_pipeline para autenticación."
+        CURL_AUTH=(-u ":${azure_pat_bridge_pipeline}")
       else
         echo "Usando System.AccessToken para autenticación."
         CURL_AUTH=(-H "Authorization: Bearer $SYSTEM_ACCESSTOKEN")
@@ -76,7 +74,7 @@ jobs:
             \"githubBranch\": \"$BRANCH\"
           }
         }" \
-        "https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_apis/pipelines/$(DEPLOY_PIPELINE_ID)/runs?api-version=7.1")
+        "$(System.CollectionUri)$(System.TeamProject)/_apis/pipelines/$(DEPLOY_ADDONS_PIPELINE_ID)/runs?api-version=7.1")
 
 
       echo "HTTP Status : $HTTP_CODE"
@@ -89,7 +87,7 @@ jobs:
 
       RUN_ID=$(python3 -c \
         "import json; d=json.load(open('/tmp/ado_response.json')); print(d.get('id','?'))")
-      RUN_URL="https://dev.azure.com/$(ADO_ORG)/$(ADO_PROJECT)/_build/results?buildId=${RUN_ID}"
+      RUN_URL="$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=${RUN_ID}"
 
       echo "✅ Pipeline de despliegue disparado."
       echo "   Run ID : $RUN_ID"
@@ -97,4 +95,4 @@ jobs:
     displayName: 'Disparar pipeline de despliegue (azure-pipeline.yml)'
     env:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-      ADO_PAT: $(ADO_PAT)   # Variable secreta definida en el bridge pipeline
+      azure_pat_bridge_pipeline: $(azure_pat_bridge_pipeline)
