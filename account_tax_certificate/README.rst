@@ -161,7 +161,7 @@ Colaboradores
 
 * `Ingenioso SAS <https://www.ingenioso.com.co>`.
 
-Mantenedores
+Mantenedores-
 ~~~~~~~~~~~~
 
 Este módulo es mantenido por Ingenioso SAS.
